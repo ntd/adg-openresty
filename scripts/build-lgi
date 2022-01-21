@@ -1,0 +1,38 @@
+#!/bin/bash
+
+die() {
+    [ -n "$1" ] && echo "** $1." >&2
+    cat <<EOT
+Usage: $0 /path/to/lgi
+Builds LGI (GObject introspection Lua bindings) for adg-openresty.
+EOT
+    [ -n "$1" ] && exit 1 || exit 0
+}
+
+[ "$1" = '-h' -o "$1" = '--help' ] && die
+[ -z "$1" ] && die "Path to LGI source tree missing"
+
+
+source $(dirname "$0")/env.conf
+lgi="$1"
+destination="$adg_openresty/modules"
+
+
+pushd "$lgi"
+
+# Clean up the environment
+unset LUA LUA_PATH LUA_CPATH
+
+# Clean any previous build
+make clean
+
+# Build and install lgi for OpenResty
+pkg_config="env PKG_CONFIG_LIBDIR=$openresty/luajit/lib/pkgconfig pkg-config"
+make \
+    LUA_LIBDIR="$destination" \
+    LUA_SHAREDIR="$destination" \
+    LUA_CFLAGS="$($pkg_config --cflags luajit)" \
+    LUA_LIB="$($pkg_config --libs luajit)" \
+    install
+
+popd

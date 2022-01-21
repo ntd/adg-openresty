@@ -1,0 +1,134 @@
+#!/bin/sh
+#
+# chkconfig: 2345 55 25
+# Description: Nginx init.d script, put in /etc/init.d, chmod +x /etc/init.d/nginx
+#              For Debian, run: update-rc.d -f nginx defaults
+#              For CentOS, run: chkconfig --add nginx
+#
+### BEGIN INIT INFO
+# Provides:          adg-openresty
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: adg-openresty init.d script
+# Description:       ADG is a library for automatic drawing generation. OpenResty is a web application server based on Nginx.
+### END INIT INFO
+#
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DESC="ADG OpenResty Daemon"
+NAME=adg-openresty
+
+source $(dirname "$0")/env.conf
+
+EXE="$openresty/nginx/sbin/nginx"
+DAEMON="$EXE -p $adg_openresty"
+CONF="$adg_openresty/conf/nginx.conf"
+PID="$adg_openresty/logs/nginx.pid"
+SCRIPT="$0"
+
+if [ ! -x "$EXE" ] || [ ! -f "$CONF" ]; then
+    echo -e "\033[33m $EXE has no permission to run. \033[0m"
+    echo -e "\033[33m Or $CONF doesn't exist. \033[0m"
+    sleep 1
+    exit 1
+fi
+
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+
+do_start() {
+    if [ -f $PID ]; then
+        echo -e "\033[33m $PID already exists. \033[0m"
+        echo -e "\033[33m $DESC is already running or crashed. \033[0m"
+        echo -e "\033[32m $DESC Reopening $CONF ... \033[0m"
+        $DAEMON -s reopen -c $CONF
+        sleep 1
+        echo -e "\033[36m $DESC reopened. \033[0m"
+    else
+        echo -e "\033[32m $DESC Starting $CONF ... \033[0m"
+        $DAEMON -c $CONF
+        sleep 1
+        echo -e "\033[36m $DESC started. \033[0m"
+    fi
+}
+
+do_stop() {
+    if [ ! -f $PID ]; then
+        echo -e "\033[33m $PID doesn't exist. \033[0m"
+        echo -e "\033[33m $DESC isn't running. \033[0m"
+    else
+        echo -e "\033[32m $DESC Stopping $CONF ... \033[0m"
+        $DAEMON -s stop -c $CONF
+        sleep 1
+        echo -e "\033[36m $DESC stopped. \033[0m"
+    fi
+}
+
+do_reload() {
+    if [ ! -f $PID ]; then
+        echo -e "\033[33m $PID doesn't exist. \033[0m"
+        echo -e "\033[33m $DESC isn't running. \033[0m"
+        echo -e "\033[32m $DESC Starting $CONF ... \033[0m"
+        $DAEMON -c $CONF
+        sleep 1
+        echo -e "\033[36m $DESC started. \033[0m"
+    else
+        echo -e "\033[32m $DESC Reloading $CONF ... \033[0m"
+        $DAEMON -s reload -c $CONF
+        sleep 1
+        echo -e "\033[36m $DESC reloaded. \033[0m"
+    fi
+}
+
+do_quit() {
+    if [ ! -f $PID ]; then
+        echo -e "\033[33m $PID doesn't exist. \033[0m"
+        echo -e "\033[33m $DESC isn't running. \033[0m"
+    else
+        echo -e "\033[32m $DESC Quitting $CONF ... \033[0m"
+        $DAEMON -s quit -c $CONF
+        sleep 1
+        echo -e "\033[36m $DESC quitted. \033[0m"
+    fi
+}
+
+do_test() {
+    echo -e "\033[32m $DESC Testing $CONF ... \033[0m"
+    $DAEMON -t -c $CONF
+}
+
+do_info() {
+    $DAEMON -V
+}
+
+case "$1" in
+ start)
+ do_start
+ ;;
+ stop)
+ do_stop
+ ;;
+ reload)
+ do_reload
+ ;;
+ restart)
+ do_stop
+ do_start
+ ;;
+ quit)
+ do_quit
+ ;;
+ test)
+ do_test
+ ;;
+ info)
+ do_info
+ ;;
+ *)
+ echo "Usage: $SCRIPT {start|stop|reload|restart|quit|test|info}"
+ exit 2
+ ;;
+esac
+
+exit 0
