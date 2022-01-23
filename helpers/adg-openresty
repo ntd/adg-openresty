@@ -16,30 +16,38 @@
 ### END INIT INFO
 #
 
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DESC="ADG OpenResty Daemon"
-NAME=adg-openresty
+die() {
+    echo -e "\033[33m $1 \033[0m"
+    exit 1
+}
+
+prepend() {
+    [[ ":${!1}:" = *":$2:"* ]] || declare -g $1="$2:${!1}"
+}
 
 source $(dirname "$0")/env.conf
 
 EXE="$openresty/nginx/sbin/nginx"
-DAEMON="$EXE -p $adg_openresty"
-CONF="$adg_openresty/conf/nginx.conf"
-PID="$adg_openresty/logs/nginx.pid"
-SCRIPT="$0"
+[ -x "$EXE" ] || die "$EXE has no permission to run."
 
-if [ ! -x "$EXE" ] || [ ! -f "$CONF" ]; then
-    echo -e "\033[33m $EXE has no permission to run. \033[0m"
-    echo -e "\033[33m Or $CONF doesn't exist. \033[0m"
-    sleep 1
-    exit 1
+CONF="$adg_openresty/conf/nginx.conf"
+[ -f "$CONF" ] || die "$CONF doesn't exist."
+
+if [ -d "$adg_openresty/adg" ]; then
+    # Use the locally installed ADG library, if found
+    prepend LD_LIBRARY_PATH "$adg_openresty/adg/lib"
+    prepend GI_TYPELIB_PATH "$adg_openresty/adg/lib/girepository-1.0"
+    prepend XDG_DATA_DIRS   "$adg_openresty/adg/share"
+    export LD_LIBRARY_PATH GI_TYPELIB_PATH XDG_DATA_DIRS
 fi
 
-echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+NAME=adg-openresty
+DESC="ADG OpenResty Daemon"
+DAEMON="$EXE -p $adg_openresty"
+PID="$adg_openresty/logs/nginx.pid"
 
 do_start() {
     if [ -f $PID ]; then
-        echo -e "\033[33m $PID already exists. \033[0m"
         echo -e "\033[33m $DESC is already running or crashed. \033[0m"
         echo -e "\033[32m $DESC Reopening $CONF ... \033[0m"
         $DAEMON -s reopen -c $CONF
@@ -55,7 +63,6 @@ do_start() {
 
 do_stop() {
     if [ ! -f $PID ]; then
-        echo -e "\033[33m $PID doesn't exist. \033[0m"
         echo -e "\033[33m $DESC isn't running. \033[0m"
     else
         echo -e "\033[32m $DESC Stopping $CONF ... \033[0m"
@@ -103,32 +110,32 @@ do_info() {
 }
 
 case "$1" in
- start)
- do_start
- ;;
- stop)
- do_stop
- ;;
- reload)
- do_reload
- ;;
- restart)
- do_stop
- do_start
- ;;
- quit)
- do_quit
- ;;
- test)
- do_test
- ;;
- info)
- do_info
- ;;
- *)
- echo "Usage: $SCRIPT {start|stop|reload|restart|quit|test|info}"
- exit 2
- ;;
+    start)
+        do_start
+        ;;
+    stop)
+        do_stop
+        ;;
+    reload)
+        do_reload
+        ;;
+    restart)
+        do_stop
+        do_start
+        ;;
+    quit)
+        do_quit
+        ;;
+    test)
+        do_test
+        ;;
+    info)
+        do_info
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|reload|restart|quit|test|info}"
+        exit 2
+        ;;
 esac
 
 exit 0

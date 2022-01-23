@@ -1,0 +1,37 @@
+#!/bin/bash
+
+die() {
+    [ -n "$1" ] && echo "** $1." >&2
+    cat <<EOT
+Usage: $0 /path/to/adg
+Builds ADG (Automatic Drawing Generation) and installs it locally.
+EOT
+    [ -n "$1" ] && exit 1 || exit 0
+}
+
+[ "$1" = '-h' -o "$1" = '--help' ] && die
+[ -z "$1" ] && die "Path to ADG source tree missing"
+
+
+source $(dirname "$0")/env.conf
+adg="$1"
+destination="$adg_openresty/adg"
+
+pushd "$adg"
+
+# Clear any previous builds
+rm -fr build-from-adg_openresty
+
+# Build ADG for web consumption (GTK support must not be included)
+meson setup build-from-adg_openresty \
+    --prefix $destination \
+    -Dintrospection=enabled \
+    -Dgtk=no \
+    -Dpango=enabled \
+    -Dcatalogdir=no \
+    -Dgtk-doc=disabled \
+    -Dtests=disabled
+meson compile -C build-from-adg_openresty
+meson install -C build-from-adg_openresty
+
+popd
