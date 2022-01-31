@@ -38,7 +38,6 @@ if [ -d "$adg_openresty/adg" ]; then
     prepend LD_LIBRARY_PATH "$adg_openresty/adg/lib"
     prepend GI_TYPELIB_PATH "$adg_openresty/adg/lib/girepository-1.0"
     prepend XDG_DATA_DIRS   "$adg_openresty/adg/share"
-    export LD_LIBRARY_PATH GI_TYPELIB_PATH XDG_DATA_DIRS
 fi
 
 NAME=adg-openresty
@@ -109,6 +108,14 @@ do_info() {
     $DAEMON -V
 }
 
+do_interact() {
+    # For OpenResty, these paths are set in conf/nginx.conf
+    env -u LUA \
+        LUA_PATH="$adg_openresty/modules/?.lua;;" \
+        LUA_CPATH="$adg_openresty/modules/?.so;;" \
+        "$openresty/luajit/bin/luajit"
+}
+
 case "$1" in
     start)
         do_start
@@ -132,8 +139,11 @@ case "$1" in
     info)
         do_info
         ;;
+    interact)
+        do_interact
+        ;;
     *)
-        echo "Usage: $0 {start|stop|reload|restart|quit|test|info}"
+        echo "Usage: $0 {start|stop|reload|restart|quit|test|info|interact}"
         exit 2
         ;;
 esac
