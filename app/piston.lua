@@ -3,7 +3,6 @@ local cairo = lgi.require 'cairo'
 local Cpml  = lgi.require 'Cpml'
 local Adg   = lgi.require 'Adg'
 
-local app   = {}
 local args  = ngx.req.get_uri_args()
 local SQRT3 = math.sqrt(3)
 
@@ -46,7 +45,6 @@ local function DATA()
     end
     return data
 end
-
 
 local function MODELS(data)
     local models = {}
@@ -204,7 +202,6 @@ local function MODELS(data)
     return models
 end
 
-
 local function CANVAS(data)
     local canvas = Adg.Canvas {}
     canvas:set_size_explicit(1123, 794)
@@ -223,7 +220,6 @@ local function CANVAS(data)
 
     return canvas
 end
-
 
 local function VIEW(canvas, models)
     canvas:add(Adg.Stroke { trail = models.body })
@@ -362,7 +358,7 @@ local function VIEW(canvas, models)
 end
 
 
-function app.log()
+local function log()
     ngx.say('ENVIRONMENT:')
     ngx.say('  GI_TYPELIB_PATH: "', os.getenv('GI_TYPELIB_PATH'), '"')
     ngx.say('  LD_LIBRARY_PATH: "', os.getenv('LD_LIBRARY_PATH'), '"')
@@ -387,9 +383,8 @@ function app.log()
     end
 end
 
-
-function app.png()
-    ngx.header.content_type = 'image/png';
+local function draw(mime, format)
+    ngx.header.content_type = mime
 
     local data   = DATA()
     local models = MODELS(data)
@@ -398,15 +393,23 @@ function app.png()
     VIEW(canvas, models)
     canvas:autoscale()
 
-    local contents, err = canvas:export_data(cairo.SurfaceType.IMAGE)
+    local contents, err = canvas:export_data(format)
     if err then error(err) end
     ngx.print(contents)
 end
 
 
--- Call the proper code depending on the extension (log, png, pdf, ...)
+local handlers = {
+    log = log,
+    png = function () draw('image/png', cairo.SurfaceType.IMAGE) end,
+    svg = function () draw('image/svg+xml', cairo.SurfaceType.SVG) end,
+    pdf = function () draw('application/pdf', cairo.SurfaceType.PDF) end,
+    ps  = function () draw('application/postscript', cairo.SurfaceType.PS) end,
+}
+
+-- Call the proper handler depending on the extension (log, png, pdf, ...)
 local extension = ngx.var.uri:match('[^.]*$')
-local handler = app[extension]
+local handler   = handlers[extension]
 if handler then
     handler()
 else
