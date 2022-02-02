@@ -359,26 +359,27 @@ end
 
 
 local function log()
-    ngx.say('ENVIRONMENT:')
-    ngx.say('  GI_TYPELIB_PATH: "', os.getenv('GI_TYPELIB_PATH'), '"')
-    ngx.say('  LD_LIBRARY_PATH: "', os.getenv('LD_LIBRARY_PATH'), '"')
-    ngx.say('  XDG_DATA_DIRS: "', os.getenv('XDG_DATA_DIRS'), '"')
-
-    ngx.say('REQUEST:')
-    ngx.say('  URI: "', ngx.var.uri, '"')
+    ngx.print {
+        'ENVIRONMENT:\n',
+        '  GI_TYPELIB_PATH: "', os.getenv('GI_TYPELIB_PATH'), '"\n',
+        '  LD_LIBRARY_PATH: "', os.getenv('LD_LIBRARY_PATH'), '"\n',
+        '  XDG_DATA_DIRS:   "', os.getenv('XDG_DATA_DIRS'), '"\n\n',
+        'REQUEST:\n',
+        '  URI: "', ngx.var.uri, '"\n',
+    }
 
     ngx.say('  HEADERS:')
-    for k,v in pairs(ngx.req.get_headers()) do
+    for k, v in pairs(ngx.req.get_headers()) do
         ngx.say('    ', k, ': "', v, '"')
     end
 
     ngx.say('  ARGUMENTS:')
-    for k,v in pairs(args) do
+    for k, v in pairs(args) do
         ngx.say('    ', k, ': "', v, '"')
     end
 
     ngx.say('\nDATA:')
-    for k,v in pairs(DATA()) do
+    for k, v in pairs(DATA()) do
         ngx.say('  ', k, ': "', v, '"')
     end
 end
