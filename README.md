@@ -58,3 +58,8 @@ For example, you should get the following piston with
 `http://localhost:2784/piston.png?A=45&B=25&DHOLE=8&DGROOVE=&D1=13&D3=14&LD3=10&D6=16`:
 
 ![Default piston drawing](./piston-custom.png)
+
+License
+=======
+
+This project is licensed under the terms of the [MIT license](./LICENSE).
