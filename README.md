@@ -21,10 +21,27 @@ packages of the following projects:
 * pango
 * gobject-introspection
 
-On desktop system, they are usually already installed but on headless
-webserver they must be installed by hand.
+On desktop system, these dependencies are usually already installed but
+on headless servers some manual intervention is likely needed. Here are
+the steps needed on a typical Debian 9 server:
 
 ```sh
+# Install the required dependencies on Debian 9
+apt install build-essential \
+            gobject-introspection libgirepository1.0-dev \
+            libcairo2-dev libpango1.0-dev
+# For more recent releases, we install ninja and meson with `pip3`
+apt install python3-pip
+pip3 install meson ninja
+```
+
+On other systems, something similar would likely be required. Once every
+needed dependency is installed, we can build everything else inside a
+local folder: no root privileges are needed here!
+
+```sh
+mkdir my-adg-app
+cd my-adg-app
 git clone https://github.com/pavouk/lgi/
 git clone https://github.com/ntd/adg
 git clone https://github.com/ntd/adg-openresty
