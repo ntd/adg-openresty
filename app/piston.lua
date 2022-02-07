@@ -41,7 +41,7 @@ local function DATA()
     }
     local data = {}
     for k in pairs(fallbacks) do
-        data[k] = args[k] or fallbacks[k]
+        data[k] = args[k] ~= '' and (args[k] or fallbacks[k])
     end
     return data
 end
