@@ -16,8 +16,12 @@
 ### END INIT INFO
 #
 
+message() {
+    printf "\033[$1m$2\033[0m\n"
+}
+
 die() {
-    echo -e "\033[33m $1 \033[0m"
+    message 33 "$1"
     exit 1
 }
 
@@ -47,60 +51,58 @@ PID="$adg_openresty/logs/nginx.pid"
 
 do_start() {
     if [ -f $PID ]; then
-        echo -e "\033[33m $DESC is already running or crashed. \033[0m"
-        echo -e "\033[32m $DESC Reopening $CONF ... \033[0m"
+        message 33 "$DESC is already running or crashed."
+        message 32 "$DESC: reopening $CONF ..."
         $DAEMON -s reopen -c $CONF
         sleep 1
-        echo -e "\033[36m $DESC reopened. \033[0m"
+        message 36 "$DESC: reopened."
     else
-        echo -e "\033[32m $DESC Starting $CONF ... \033[0m"
+        message 32 "$DESC: starting $CONF ..."
         $DAEMON -c $CONF
         sleep 1
-        echo -e "\033[36m $DESC started. \033[0m"
+        message 36 "$DESC: started."
     fi
 }
 
 do_stop() {
     if [ ! -f $PID ]; then
-        echo -e "\033[33m $DESC isn't running. \033[0m"
+        message 33 "$DESC isn't running."
     else
-        echo -e "\033[32m $DESC Stopping $CONF ... \033[0m"
+        message 32 "$DESC: stopping $CONF ..."
         $DAEMON -s stop -c $CONF
         sleep 1
-        echo -e "\033[36m $DESC stopped. \033[0m"
+        message 36 "$DESC: stopped."
     fi
 }
 
 do_reload() {
     if [ ! -f $PID ]; then
-        echo -e "\033[33m $PID doesn't exist. \033[0m"
-        echo -e "\033[33m $DESC isn't running. \033[0m"
-        echo -e "\033[32m $DESC Starting $CONF ... \033[0m"
+        message 33 "$PID doesn't exist: $DESC isn't running."
+        message 32 "$DESC: starting $CONF ..."
         $DAEMON -c $CONF
         sleep 1
-        echo -e "\033[36m $DESC started. \033[0m"
+        message 36 "$DESC: started."
     else
-        echo -e "\033[32m $DESC Reloading $CONF ... \033[0m"
+        message 32 "$DESC: reloading $CONF ..."
         $DAEMON -s reload -c $CONF
         sleep 1
-        echo -e "\033[36m $DESC reloaded. \033[0m"
+        message 36 "$DESC: reloaded."
     fi
 }
 
 do_quit() {
     if [ ! -f $PID ]; then
-        echo -e "\033[33m $PID doesn't exist. \033[0m"
-        echo -e "\033[33m $DESC isn't running. \033[0m"
+        message 33 "$PID doesn't exist: $DESC isn't running."
     else
-        echo -e "\033[32m $DESC Quitting $CONF ... \033[0m"
+        message 32 "$DESC: quitting $CONF ..."
         $DAEMON -s quit -c $CONF
         sleep 1
-        echo -e "\033[36m $DESC quitted. \033[0m"
+        message 36 "$DESC: quitted."
     fi
 }
 
 do_test() {
-    echo -e "\033[32m $DESC Testing $CONF ... \033[0m"
+    message 32 "$DESC: testing $CONF ..."
     $DAEMON -t -c $CONF
 }
 
