@@ -166,7 +166,7 @@ local function MODELS(data)
     model:set_named_pair('D5I', pair)
     pair.x = data.A - data.C
     model:line_to(pair)
-    model:fillet(0.2)
+    model:fillet(data.RD56)
     pair.y = data.D6 / 2
     model:line_to(pair)
     primitive = model:over_primitive()
