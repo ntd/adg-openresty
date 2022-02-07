@@ -9,8 +9,8 @@ local SQRT3 = math.sqrt(3)
 
 local function DATA()
     local fallbacks = {
-        width   = 800,
-        height  = 600,
+        width   = 1123,
+        height  = 794,
         A       = 55,
         B       = 20.6,
         C       = 2,
@@ -204,7 +204,7 @@ end
 
 local function CANVAS(data)
     local canvas = Adg.Canvas {}
-    canvas:set_size_explicit(1123, 794)
+    canvas:set_size_explicit(data.width, data.height)
     canvas:set_margins(10, 10, 10, 10)
     canvas:set_paddings(0, 0, 0, 0)
 
