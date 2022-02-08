@@ -26,8 +26,19 @@ unset LUA LUA_PATH LUA_CPATH
 # Clean any previous build
 make clean
 
-# Build and install lgi for OpenResty
+# Build and install in separate steps, otherwise the generated scripts
+# (e.g. version.lua) will not be installed (see `CORESOURCES`)
 pkg_config="env PKG_CONFIG_LIBDIR=$openresty/luajit/lib/pkgconfig pkg-config"
+
+# Build step
+make \
+    LUA_LIBDIR="$destination" \
+    LUA_SHAREDIR="$destination" \
+    LUA_CFLAGS="$($pkg_config --cflags luajit)" \
+    LUA_LIB="$($pkg_config --libs luajit)" \
+    all
+
+# Installation step
 make \
     LUA_LIBDIR="$destination" \
     LUA_SHAREDIR="$destination" \
