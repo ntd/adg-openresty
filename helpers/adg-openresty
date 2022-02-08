@@ -26,7 +26,14 @@ die() {
 }
 
 prepend() {
-    [[ ":${!1}:" = *":$2:"* ]] || declare -g $1="$2:${!1}"
+    local old="${!1}"
+    if [[ -z "$old" ]]; then
+        # Empty list: initialize it with the passed-in folder
+        declare -g $1="$2"
+    elif [[ ":$old:" != *":$2:"* ]]; then
+        # Folder not found: prepend it
+        declare -g $1="$2:$old"
+    fi
 }
 
 . $(dirname "$0")/env.conf
@@ -42,6 +49,7 @@ if [ -d "$adg_openresty/adg" ]; then
     prepend LD_LIBRARY_PATH "$adg_openresty/adg/lib"
     prepend GI_TYPELIB_PATH "$adg_openresty/adg/lib/girepository-1.0"
     prepend XDG_DATA_DIRS   "$adg_openresty/adg/share"
+    export LD_LIBRARY_PATH GI_TYPELIB_PATH XDG_DATA_DIRS
 fi
 
 NAME=adg-openresty
