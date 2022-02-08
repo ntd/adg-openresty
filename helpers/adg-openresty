@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # chkconfig: 2345 55 25
 # Description: Nginx init.d script, put in /etc/init.d, chmod +x /etc/init.d/nginx
