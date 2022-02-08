@@ -24,7 +24,8 @@ rm -fr build-from-adg_openresty
 
 # Build ADG for web consumption (GTK support must not be included)
 meson setup build-from-adg_openresty \
-    --prefix $destination \
+    --prefix "$destination" \
+    --libdir "$destination/lib" \
     -Dintrospection=enabled \
     -Dgtk=no \
     -Dpango=enabled \
