@@ -1,0 +1,20 @@
+# An example systemd service unit.
+#
+# This file can be installed in `/etc/systemd/system` and run in the
+# usual way by `systemctl`. Unfortunately all the paths need to be
+# absolute, so you should likely edit them by hand before.
+
+[Unit]
+Description=ADG OpenResty endpoint
+After=openresty.service
+
+[Service]
+WorkingDirectory=/var/www/adg-demo/adg-openresty
+Type=forking
+PIDFile=/var/www/adg-demo/adg-openresty/logs/nginx.pid
+ExecStart=/var/www/adg-demo/adg-openresty/helpers/adg-openresty start
+ExecReload=/var/www/adg-demo/adg-openresty/helpers/adg-openresty reload
+ExecStop=/var/www/adg-demo/adg-openresty/helpers/adg-openresty stop
+
+[Install]
+WantedBy=multi-user.target
