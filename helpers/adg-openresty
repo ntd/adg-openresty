@@ -1,9 +1,10 @@
 #!/bin/bash
 #
 # chkconfig: 2345 55 25
-# Description: Nginx init.d script, put in /etc/init.d, chmod +x /etc/init.d/nginx
-#              For Debian, run: update-rc.d -f nginx defaults
-#              For CentOS, run: chkconfig --add nginx
+# Description: ADG OpenResty init.d script.
+#              To install: `install adg-openresty /etc/init.d/`
+#              To enable on Debian: `update-rc.d -f adg-openresty defaults`
+#              To enable on CentOS: `chkconfig --add adg-openresty`
 #
 ### BEGIN INIT INFO
 # Provides:          adg-openresty
